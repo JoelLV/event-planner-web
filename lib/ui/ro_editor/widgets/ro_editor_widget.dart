@@ -28,7 +28,7 @@ class _ToolBar extends StatelessWidget {
     return [
       for (var (:icon, :tooltip) in iconButtonData)
         Padding(
-          padding: const EdgeInsets.only(left: 15, right: 15),
+          padding: const EdgeInsets.only(left: 10, right: 10),
           // TODO: Implement actions for these buttons once they've been implemented.
           child: _ToolbarButton(icon: icon, tooltip: tooltip, onPressed: () {}),
         ),

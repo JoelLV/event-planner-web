@@ -1,19 +1,67 @@
+import 'package:event_planner_frontend/ui/core/themes/themes.dart';
 import 'package:flutter/material.dart';
 
+/// The RoEditor is a widget that allows the user to
+/// create and edit the running-order of an event.
+///
+///
+/// The RoEditor widget is made out of two parts: the [ToolBar] widget,
+/// which controls several main actions of the editor, and the [RoEditorTable]
+/// widget, where most of the details of the running-order can be edited.
 class RoEditor extends StatelessWidget {
   const RoEditor({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const Column(children: [_ToolBar()]);
+    bool desktopView = MediaQuery.sizeOf(context).width > mobilePixelThreshold;
+
+    if (desktopView) {
+      return Column(
+        children: [
+          ToolBar(),
+          Expanded(child: RoEditorTable()),
+        ],
+      );
+    } else {
+      return Stack(
+        alignment: AlignmentGeometry.bottomCenter,
+        children: [
+          RoEditorTable(),
+          Positioned(bottom: 25, child: ToolBar()),
+        ],
+      );
+    }
   }
 }
 
-/// Creates a desktop-only view toolbar for the RO editor.
+class RoEditorTable extends StatelessWidget {
+  RoEditorTable({super.key});
+
+  final sampleData = List.generate(50, (index) => 'Item: $index');
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      padding: EdgeInsets.only(
+        bottom: 100,
+      ), // Add space at the bottom for the toolbar.
+      itemCount: sampleData.length,
+      itemBuilder: (context, index) => Card(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Text(sampleData[index]),
+        ),
+      ),
+    );
+  }
+}
+
+/// Creates a RO Editor toolbar that can be used to interact with
+/// the RO editor table.
 class ToolBar extends StatelessWidget {
   const ToolBar({super.key});
 
-  /// Generates a list of Icon buttons.
+  /// Generates a list of Icon buttons for the toolbar.
   List<Widget> _getToolbarButtons(BuildContext context) {
     // List of icons to generate.
     const iconButtonData = <({IconData icon, String tooltip})>[
@@ -39,6 +87,11 @@ class ToolBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return IntrinsicWidth(
       child: Card(
+        elevation:
+            // Add elevation only on mobile view.
+            MediaQuery.sizeOf(context).width <= mobilePixelThreshold
+            ? 10
+            : null,
         child: Padding(
           padding: const EdgeInsets.only(top: 10, bottom: 10),
           child: Row(

@@ -15,9 +15,7 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       theme: themeData,
       home: Scaffold(
-        body: Center(
-          child: RoEditor(),
-        ),
+        body: RoEditor(),
       )
     );
   }

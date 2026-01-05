@@ -34,6 +34,10 @@ class RoEditor extends StatelessWidget {
   }
 }
 
+/// The RoEditorTable widget allows the user to see
+/// and edit the details of the running-order, such as
+/// its event blocks and event sections. It is
+/// controlled by the [ToolBar] widget.
 class RoEditorTable extends StatelessWidget {
   RoEditorTable({super.key});
 
@@ -57,7 +61,7 @@ class RoEditorTable extends StatelessWidget {
 }
 
 /// Creates a RO Editor toolbar that can be used to interact with
-/// the RO editor table.
+/// the [RoEditorTable].
 class ToolBar extends StatelessWidget {
   const ToolBar({super.key});
 

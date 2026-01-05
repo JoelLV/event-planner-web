@@ -10,8 +10,8 @@ class RoEditor extends StatelessWidget {
 }
 
 /// Creates a desktop-only view toolbar for the RO editor.
-class _ToolBar extends StatelessWidget {
-  const _ToolBar();
+class ToolBar extends StatelessWidget {
+  const ToolBar({super.key});
 
   /// Generates a list of Icon buttons.
   List<Widget> _getToolbarButtons(BuildContext context) {

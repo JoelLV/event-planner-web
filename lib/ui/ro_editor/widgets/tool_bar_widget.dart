@@ -4,26 +4,42 @@ import 'package:flutter/material.dart';
 /// Creates a RO Editor toolbar that can be used to interact with
 /// the [RoEditorTable].
 class ToolBar extends StatelessWidget {
-  const ToolBar({super.key});
+  ToolBar({super.key});
+
+  final iconButtonData =
+      <({IconData icon, String tooltip, void Function() action})>[
+        (
+          icon: Icons.delete_outline,
+          tooltip: 'Delete selected block/section',
+          action: () {},
+        ),
+        (
+          icon: Icons.swap_vert,
+          tooltip: 'Re-arrange blocks/sections',
+          action: () {},
+        ),
+        (icon: Icons.add, tooltip: 'Add block/section', action: () {}),
+        (icon: Icons.copy, tooltip: 'Copy block/section', action: () {}),
+        (icon: Icons.paste, tooltip: 'Paste block/section', action: () {}),
+        (
+          icon: Icons.remove_red_eye_outlined,
+          tooltip: 'Toggle view mode',
+          action: () {},
+        ),
+      ];
 
   /// Generates a list of Icon buttons for the toolbar.
   List<Widget> _getToolbarButtons(BuildContext context) {
-    // List of icons to generate.
-    const iconButtonData = <({IconData icon, String tooltip})>[
-      (icon: Icons.delete_outline, tooltip: 'Delete selected block/section'),
-      (icon: Icons.swap_vert, tooltip: 'Re-arrange blocks/sections'),
-      (icon: Icons.add, tooltip: 'Add block/section'),
-      (icon: Icons.copy, tooltip: 'Copy block/section'),
-      (icon: Icons.paste, tooltip: 'Paste block/section'),
-      (icon: Icons.remove_red_eye_outlined, tooltip: 'Toggle view mode'),
-    ];
-
     return [
-      for (var (:icon, :tooltip) in iconButtonData)
+      for (var (:icon, :tooltip, :action) in iconButtonData)
         Padding(
           padding: const EdgeInsets.only(left: 10, right: 10),
           // TODO: Implement actions for these buttons once they've been implemented.
-          child: _ToolbarButton(icon: icon, tooltip: tooltip, onPressed: () {}),
+          child: _ToolbarButton(
+            icon: icon,
+            tooltip: tooltip,
+            onPressed: action,
+          ),
         ),
     ];
   }
@@ -59,7 +75,7 @@ class _ToolbarButton extends StatelessWidget {
 
   final IconData icon;
   final String tooltip;
-  final void Function()? onPressed;
+  final void Function() onPressed;
 
   @override
   Widget build(BuildContext context) {

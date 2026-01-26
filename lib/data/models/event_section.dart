@@ -1,0 +1,3 @@
+class EventSection {
+  const EventSection();
+}

@@ -41,13 +41,26 @@ class RoEditorTable extends StatelessWidget {
     return Placeholder();
   }
 
+  Widget _buildAddBlockDivider() {
+    return Row(
+      children: [
+        Expanded(child: Divider(indent: 30)),
+        IconButton(onPressed: () {}, icon: Icon(Icons.add)),
+        Expanded(child: Divider(endIndent: 30)),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Column(children: [
-      _buildTableHeader(context),
-      for (var block in editorViewModel.eventBlocks)
-        _buildBlockWidget(block)
-      ]);
+    return Column(
+      children: [
+        _buildTableHeader(context),
+        _buildAddBlockDivider(),
+        // TODO: Modify for this to be a stream so that we can alternate between add button and event block.
+        for (var block in editorViewModel.eventBlocks) _buildBlockWidget(block),
+      ],
+    );
     // return Table(
     //   columnWidths: {0: FixedColumnWidth(40)},
     //   children: [

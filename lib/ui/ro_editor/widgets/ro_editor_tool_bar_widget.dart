@@ -84,36 +84,13 @@ class _AddButtonState extends State<_AddButton> {
 
   @override
   Widget build(BuildContext context) {
-    return MenuAnchor(
-      childFocusNode: _addButtonFocusNode,
-      menuChildren: [
-        MenuItemButton(
-          onPressed: () {
-            widget.editorViewModel.changeEditMode(EditMode.add);
-          },
-          child: Text('Add Block'),
-        ),
-        MenuItemButton(
-          onPressed: () {
-            widget.editorViewModel.changeEditMode(EditMode.add);
-          },
-          child: Text('Add Section'),
-        ),
-      ],
-      builder: (context, controller, child) {
-        return IconButton(
-          tooltip: 'Add block/section',
-          focusNode: _addButtonFocusNode,
-          onPressed: () {
-            if (controller.isOpen) {
-              controller.close();
-            } else {
-              controller.open();
-            }
-          },
-          icon: Icon(Icons.add),
-        );
+    return IconButton(
+      tooltip: 'Add block/section',
+      focusNode: _addButtonFocusNode,
+      onPressed: () {
+        widget.editorViewModel.changeEditMode(.add);
       },
+      icon: Icon(Icons.add),
     );
   }
 }

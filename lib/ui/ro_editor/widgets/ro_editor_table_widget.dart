@@ -11,15 +11,167 @@ class RoEditorTable extends StatelessWidget {
 
   final RoEditorViewModel editorViewModel;
 
-  Widget _buildTableHeader(BuildContext context) {
-    const headerTextStyle = TextStyle(fontStyle: FontStyle.italic);
+  /// Given a list of event blocks, it'll attempt to construct a list of
+  /// [_EventBlockContainer] widgets with [_InsertEventBlockDivider] widgets
+  /// in-between if editorViewModel.editMode == [EditMode.add].
+  List<Widget> _buildEventBlockWidgets(List<EventBlock> blocks) {
+    var widgets = <Widget>[
+      if (editorViewModel.editMode == EditMode.add)
+        _InsertEventBlockDivider(
+          editorViewModel: editorViewModel,
+          insertAtIndex: 0,
+        ),
+    ];
+    for (var i = 0; i < blocks.length; i++) {
+      widgets.add(
+        FractionallySizedBox(
+          widthFactor: 100,
+          child: _EventBlockContainer(
+            editorViewModel: editorViewModel,
+            blockIndex: i,
+          ),
+        ),
+      );
+      if (editorViewModel.editMode == EditMode.add) {
+        widgets.add(
+          _InsertEventBlockDivider(
+            editorViewModel: editorViewModel,
+            insertAtIndex: i + 1,
+          ),
+        );
+      }
+    }
+    return widgets;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListenableBuilder(
+      listenable: editorViewModel,
+      builder: (context, child) {
+        return Column(
+          children: [
+            _TableHeader(),
+            ..._buildEventBlockWidgets(editorViewModel.eventBlocks),
+            SizedBox(height: 100),
+          ],
+        );
+      },
+    );
+  }
+}
+
+/// Get color of the border for the editor table.
+Color _getTableBorderColor(BuildContext context) {
+  return Theme.of(context).colorScheme.onSurface.withAlpha(40);
+}
+
+/// Helper widget for constructing the dividers between
+/// event blocks for inserting new blocks.
+class _InsertEventBlockDivider extends StatelessWidget {
+  const _InsertEventBlockDivider({
+    required this.insertAtIndex,
+    required this.editorViewModel,
+  });
+
+  final int insertAtIndex;
+  final RoEditorViewModel editorViewModel;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Row(
+        children: [
+          Expanded(child: Divider(indent: 30)),
+          FilledButton.icon(
+            onPressed: () {
+              editorViewModel.insertEventBlockAt(insertAtIndex);
+            },
+            label: Text('Insert Block'),
+            icon: Icon(Icons.add),
+          ),
+          Expanded(child: Divider(endIndent: 30)),
+        ],
+      ),
+    );
+  }
+}
+
+/// Helper widget for constructing the event block with all the
+/// input fields for the user.
+class _EventBlockContainer extends StatelessWidget {
+  const _EventBlockContainer({
+    required this.editorViewModel,
+    required this.blockIndex,
+  });
+
+  final RoEditorViewModel editorViewModel;
+  final int blockIndex;
+
+  @override
+  Widget build(BuildContext context) {
+    var startTime = editorViewModel.eventBlocks[blockIndex].startTime;
 
     return Container(
       decoration: BoxDecoration(
         border: Border(
-          bottom: BorderSide(
-            color: Theme.of(context).colorScheme.onSurface.withAlpha(40),
+          top: BorderSide(color: _getTableBorderColor(context)),
+          bottom: BorderSide(color: _getTableBorderColor(context)),
+        ),
+      ),
+      padding: EdgeInsets.only(top: 20, bottom: 20),
+      child: Column(
+        crossAxisAlignment: .center,
+        children: [
+          Text('Block ${blockIndex + 1}'),
+          SizedBox(width: 300, child: TextField(textAlign: .center)),
+          SizedBox(height: 15),
+          SizedBox(
+            width: 100,
+            child: OutlinedButton(
+              style: ButtonStyle(
+                shape: WidgetStatePropertyAll(
+                  ContinuousRectangleBorder(
+                    borderRadius: BorderRadiusGeometry.all(Radius.circular(10)),
+                  ),
+                ),
+              ),
+              onPressed: () =>
+                  showTimePicker(
+                    context: context,
+                    initialTime: TimeOfDay(
+                      hour: startTime.hour,
+                      minute: startTime.minute,
+                    ),
+                  ).then((value) {
+                    if (value != null) {
+                      editorViewModel.setEventBlockData(blockIndex, value);
+                    }
+                  }),
+              child: Text(
+                editorViewModel.eventBlocks[blockIndex].startTime.hour
+                    .toString(),
+              ),
+            ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Helper widget for the table header visible in the RoEditorTable.
+class _TableHeader extends StatelessWidget {
+  const _TableHeader();
+
+  @override
+  Widget build(BuildContext context) {
+    const headerTextStyle = TextStyle(fontStyle: FontStyle.italic);
+    return Container(
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(color: _getTableBorderColor(context)),
         ),
       ),
       child: Row(
@@ -35,79 +187,5 @@ class RoEditorTable extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  Widget _buildBlockWidget(EventBlock block) {
-    return Placeholder();
-  }
-
-  Widget _buildAddBlockDivider() {
-    return Row(
-      children: [
-        Expanded(child: Divider(indent: 30)),
-        IconButton(onPressed: () {}, icon: Icon(Icons.add)),
-        Expanded(child: Divider(endIndent: 30)),
-      ],
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        _buildTableHeader(context),
-        _buildAddBlockDivider(),
-        // TODO: Modify for this to be a stream so that we can alternate between add button and event block.
-        for (var block in editorViewModel.eventBlocks) _buildBlockWidget(block),
-      ],
-    );
-    // return Table(
-    //   columnWidths: {0: FixedColumnWidth(40)},
-    //   children: [
-    //     TableRow(
-    //       decoration: BoxDecoration(
-    //         border: Border(
-    //           bottom: BorderSide(
-    //             color: Theme.of(
-    //               context,
-    //             ).colorScheme.onSurface.withValues(alpha: 0.2),
-    //           ),
-    //         ),
-    //       ),
-    //       children: [
-    //         Text('#', style: headerTextStyle),
-    //         Text('Section', style: headerTextStyle),
-    //         Text('Summary', style: headerTextStyle),
-    //         Text('Participants', style: headerTextStyle),
-    //         Text('Start time', style: headerTextStyle),
-    //         Text('Duration', style: headerTextStyle),
-    //         Text('Description', style: headerTextStyle),
-    //       ],
-    //     ),
-    //     TableRow(
-    //       children: [
-    //         IconButton(onPressed: () {}, icon: Icon(Icons.add)),
-    //         IconButton(onPressed: () {}, icon: Icon(Icons.add)),
-    //         IconButton(onPressed: () {}, icon: Icon(Icons.add)),
-    //         IconButton(onPressed: () {}, icon: Icon(Icons.add)),
-    //         IconButton(onPressed: () {}, icon: Icon(Icons.add)),
-    //         IconButton(onPressed: () {}, icon: Icon(Icons.add)),
-    //         IconButton(onPressed: () {}, icon: Icon(Icons.add)),
-    //       ]
-    //     ),
-    //     for (var block in editorViewModel.eventBlocks)
-    //       TableRow(
-    //         children: [
-    //           Placeholder(),
-    //           Placeholder(),
-    //           Placeholder(),
-    //           Placeholder(),
-    //           Placeholder(),
-    //           Placeholder(),
-    //           Placeholder(),
-    //         ]
-    //       )
-    //   ],
-    // );
   }
 }

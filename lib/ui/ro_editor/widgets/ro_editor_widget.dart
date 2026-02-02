@@ -11,32 +11,48 @@ import 'package:flutter/material.dart';
 /// The RoEditor widget is made out of two parts: the [RoEditorToolBar] widget,
 /// which controls several main actions of the editor, and the [RoEditorTable]
 /// widget, where most of the details of the running-order can be edited.
-class RoEditor extends StatelessWidget {
+class RoEditor extends StatefulWidget {
   const RoEditor({super.key});
+
+  @override
+  State<RoEditor> createState() => _RoEditorState();
+}
+
+class _RoEditorState extends State<RoEditor> {
+  final RoEditorViewModel editorViewModel = RoEditorViewModel();
 
   @override
   Widget build(BuildContext context) {
     var desktopView = MediaQuery.sizeOf(context).width > mobilePixelThreshold;
-    var editorViewModel = RoEditorViewModel();
 
     if (desktopView) {
-      return Column(
-        children: [
-          RoEditorToolBar(editorViewModel: editorViewModel),
-          Expanded(child: RoEditorTable(editorViewModel: editorViewModel)),
-        ],
-      );
-    } else {
-      return Stack(
-        alignment: AlignmentGeometry.bottomCenter,
-        children: [
-          RoEditorTable(editorViewModel: editorViewModel),
-          Positioned(
-            bottom: 25,
-            child: RoEditorToolBar(editorViewModel: editorViewModel),
-          ),
-        ],
+      return SingleChildScrollView(
+        child: Column(
+          children: [
+            RoEditorToolBar(editorViewModel: editorViewModel),
+            RoEditorTable(editorViewModel: editorViewModel),
+          ],
+        ),
       );
     }
+
+    return Column(
+      children: [
+        Expanded(
+          child: Stack(
+            alignment: .topCenter,
+            children: [
+              SingleChildScrollView(
+                child: RoEditorTable(editorViewModel: editorViewModel),
+              ),
+              Positioned(
+                bottom: 25,
+                child: RoEditorToolBar(editorViewModel: editorViewModel),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 }

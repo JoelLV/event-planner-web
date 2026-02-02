@@ -25,7 +25,7 @@ class RoEditorViewModel extends ChangeNotifier {
   EditMode _editMode = .base;
 
   List<EventBlock> get eventBlocks => _eventBlocks;
-  List<EventBlock> _eventBlocks = [];
+  final List<EventBlock> _eventBlocks = [];
 
   /// Changes the RoEditor edit mode to the given [newMode].
   /// Does not do anything if the mode given is the current mode.
@@ -35,5 +35,27 @@ class RoEditorViewModel extends ChangeNotifier {
     }
     _editMode = newMode;
     notifyListeners();
+  }
+
+  /// Adds a new block to the specified index.
+  void insertEventBlockAt(int index) {
+    // TODO: Implement actual logic for the start time.
+    var block = EventBlock(startTime: DateTime.now(), title: '');
+    _eventBlocks.insert(index, block);
+    notifyListeners();
+  }
+
+  /// Modifies an existing event block specified by its index
+  /// in the [eventBlocks] list with the given time.
+  void setEventBlockData(int index, TimeOfDay time) {
+    final block = _eventBlocks[index];
+    block.startTime = DateTime.now().copyWith(hour: time.hour, minute: time.minute);
+
+    notifyListeners();
+  }
+
+  /// Converts a given number to its equivalent in roman numerals.
+  String intToRomanNumber(int n) {
+    return '';
   }
 }

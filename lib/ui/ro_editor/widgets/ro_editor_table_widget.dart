@@ -32,7 +32,7 @@ class RoEditorTable extends StatelessWidget {
           ),
         ),
       );
-      if (editorViewModel.editMode == EditMode.add) {
+      if (editorViewModel.editMode == .add) {
         widgets.add(
           _InsertEventBlockDivider(
             editorViewModel: editorViewModel,
@@ -217,7 +217,7 @@ class _TableHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const headerTextStyle = TextStyle(fontStyle: FontStyle.italic);
+    const headerTextStyle = TextStyle(fontStyle: .italic);
     return Container(
       decoration: BoxDecoration(
         border: Border(

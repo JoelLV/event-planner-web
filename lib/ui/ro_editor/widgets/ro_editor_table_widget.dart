@@ -100,7 +100,7 @@ class _InsertEventBlockDivider extends StatelessWidget {
 
 /// Helper widget for constructing the event block with all the
 /// input fields for the user.
-class _EventBlockContainer extends StatelessWidget {
+class _EventBlockContainer extends StatefulWidget {
   const _EventBlockContainer({
     required this.editorViewModel,
     required this.blockIndex,
@@ -110,8 +110,29 @@ class _EventBlockContainer extends StatelessWidget {
   final int blockIndex;
 
   @override
+  State<_EventBlockContainer> createState() => _EventBlockContainerState();
+}
+
+class _EventBlockContainerState extends State<_EventBlockContainer> {
+  late final TextEditingController blockTitleController;
+
+  @override
+  void initState() {
+    blockTitleController = TextEditingController(
+      text: widget.editorViewModel.eventBlocks[widget.blockIndex].title,
+    );
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    blockTitleController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    var block = editorViewModel.eventBlocks[blockIndex];
+    var block = widget.editorViewModel.eventBlocks[widget.blockIndex];
 
     return Container(
       decoration: BoxDecoration(
@@ -124,19 +145,23 @@ class _EventBlockContainer extends StatelessWidget {
       child: Column(
         crossAxisAlignment: .center,
         children: [
-          Text('Block ${blockIndex + 1}'),
+          Text('Block ${widget.blockIndex + 1}'),
           SizedBox(
             width: 300,
             child: TextField(
+              controller: blockTitleController,
               textAlign: .center,
               decoration: InputDecoration(helperText: 'Block title'),
               onChanged: (value) {
-                editorViewModel.setEventBlockData(blockIndex, blockName: value);
+                widget.editorViewModel.setEventBlockData(
+                  widget.blockIndex,
+                  blockName: value,
+                );
               },
             ),
           ),
           SizedBox(height: 15),
-          if (blockIndex == 0)
+          if (widget.blockIndex == 0)
             SizedBox(
               width: 120,
               child: Tooltip(
@@ -160,20 +185,26 @@ class _EventBlockContainer extends StatelessWidget {
                         ),
                       ).then((value) {
                         if (value != null) {
-                          editorViewModel.setEventBlockData(
-                            blockIndex,
+                          widget.editorViewModel.setEventBlockData(
+                            widget.blockIndex,
                             time: value,
                           );
                         }
                       }),
                   child: Text(
-                    editorViewModel.convertBlockTimeToTimestamp(block.startTime),
+                    widget.editorViewModel.convertBlockTimeToTimestamp(
+                      block.startTime,
+                    ),
                   ),
                 ),
               ),
             ),
-          if (blockIndex != 0)
-            Text(editorViewModel.convertBlockTimeToTimestamp(block.startTime)),
+          if (widget.blockIndex != 0)
+            Text(
+              widget.editorViewModel.convertBlockTimeToTimestamp(
+                block.startTime,
+              ),
+            ),
         ],
       ),
     );

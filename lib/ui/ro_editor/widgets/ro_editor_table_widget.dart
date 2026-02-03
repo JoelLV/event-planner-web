@@ -111,7 +111,7 @@ class _EventBlockContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var startTime = editorViewModel.eventBlocks[blockIndex].startTime;
+    var block = editorViewModel.eventBlocks[blockIndex];
 
     return Container(
       decoration: BoxDecoration(
@@ -125,36 +125,55 @@ class _EventBlockContainer extends StatelessWidget {
         crossAxisAlignment: .center,
         children: [
           Text('Block ${blockIndex + 1}'),
-          SizedBox(width: 300, child: TextField(textAlign: .center)),
-          SizedBox(height: 15),
           SizedBox(
-            width: 100,
-            child: OutlinedButton(
-              style: ButtonStyle(
-                shape: WidgetStatePropertyAll(
-                  ContinuousRectangleBorder(
-                    borderRadius: BorderRadiusGeometry.all(Radius.circular(10)),
+            width: 300,
+            child: TextField(
+              textAlign: .center,
+              decoration: InputDecoration(helperText: 'Block title'),
+              onChanged: (value) {
+                editorViewModel.setEventBlockData(blockIndex, blockName: value);
+              },
+            ),
+          ),
+          SizedBox(height: 15),
+          if (blockIndex == 0)
+            SizedBox(
+              width: 120,
+              child: Tooltip(
+                message: 'Edit start time',
+                child: OutlinedButton(
+                  style: ButtonStyle(
+                    shape: WidgetStatePropertyAll(
+                      ContinuousRectangleBorder(
+                        borderRadius: BorderRadiusGeometry.all(
+                          Radius.circular(10),
+                        ),
+                      ),
+                    ),
+                  ),
+                  onPressed: () =>
+                      showTimePicker(
+                        context: context,
+                        initialTime: TimeOfDay(
+                          hour: block.startTime.hour,
+                          minute: block.startTime.minute,
+                        ),
+                      ).then((value) {
+                        if (value != null) {
+                          editorViewModel.setEventBlockData(
+                            blockIndex,
+                            time: value,
+                          );
+                        }
+                      }),
+                  child: Text(
+                    editorViewModel.convertBlockTimeToTimestamp(block.startTime),
                   ),
                 ),
               ),
-              onPressed: () =>
-                  showTimePicker(
-                    context: context,
-                    initialTime: TimeOfDay(
-                      hour: startTime.hour,
-                      minute: startTime.minute,
-                    ),
-                  ).then((value) {
-                    if (value != null) {
-                      editorViewModel.setEventBlockData(blockIndex, value);
-                    }
-                  }),
-              child: Text(
-                editorViewModel.eventBlocks[blockIndex].startTime.hour
-                    .toString(),
-              ),
             ),
-          ),
+          if (blockIndex != 0)
+            Text(editorViewModel.convertBlockTimeToTimestamp(block.startTime)),
         ],
       ),
     );

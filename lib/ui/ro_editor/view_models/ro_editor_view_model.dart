@@ -51,18 +51,40 @@ class RoEditorViewModel extends ChangeNotifier {
 
   /// Modifies an existing event block specified by its index
   /// in the [eventBlocks] list with the given time.
-  void setEventBlockData(int index, TimeOfDay time) {
+  void setEventBlockData(int index, {TimeOfDay? time, String? blockName}) {
     final block = _eventBlocks[index];
-    block.startTime = DateTime.now().copyWith(
-      hour: time.hour,
-      minute: time.minute,
-    );
+    if (time != null) {
+      if (index != 0) {
+        throw ArgumentError.value(
+          index,
+          'index',
+          'value `index` does not equal to 0',
+        );
+      }
+      block.startTime = DateTime.now().copyWith(
+        hour: time.hour,
+        minute: time.minute,
+      );
+    }
+    if (blockName != null) {
+      block.title = blockName;
+    }
 
-    notifyListeners();
+    if (time != null || blockName != null) {
+      notifyListeners();
+    }
   }
 
   /// Converts a given number to its equivalent in roman numerals.
   String intToRomanNumber(int n) {
     return '';
+  }
+
+  /// Converts a given [DateTime] object to a string
+  /// representation in the format HH:mm am|pm.
+  String convertBlockTimeToTimestamp(DateTime time) {
+    var hour = time.hour;
+    var minute = time.minute;
+    return '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')} ${hour < 11 ? 'am' : 'pm'}';
   }
 }

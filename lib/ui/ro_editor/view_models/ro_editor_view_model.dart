@@ -39,8 +39,12 @@ class RoEditorViewModel extends ChangeNotifier {
 
   /// Adds a new block to the specified index.
   void insertEventBlockAt(int index) {
-    // TODO: Implement actual logic for the start time.
-    var block = EventBlock(startTime: DateTime.now(), title: '');
+    DateTime startTime = DateTime.now();
+
+    if (index == 0 && _eventBlocks.isNotEmpty) {
+      startTime = _eventBlocks[0].startTime;
+    }
+    var block = EventBlock(startTime: startTime, title: '');
     _eventBlocks.insert(index, block);
     notifyListeners();
   }
@@ -49,7 +53,10 @@ class RoEditorViewModel extends ChangeNotifier {
   /// in the [eventBlocks] list with the given time.
   void setEventBlockData(int index, TimeOfDay time) {
     final block = _eventBlocks[index];
-    block.startTime = DateTime.now().copyWith(hour: time.hour, minute: time.minute);
+    block.startTime = DateTime.now().copyWith(
+      hour: time.hour,
+      minute: time.minute,
+    );
 
     notifyListeners();
   }

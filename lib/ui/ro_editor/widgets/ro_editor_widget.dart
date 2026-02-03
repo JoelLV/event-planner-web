@@ -19,7 +19,19 @@ class RoEditor extends StatefulWidget {
 }
 
 class _RoEditorState extends State<RoEditor> {
-  final RoEditorViewModel editorViewModel = RoEditorViewModel();
+  late final RoEditorViewModel editorViewModel;
+
+  @override
+  void initState() {
+    editorViewModel = RoEditorViewModel();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    editorViewModel.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

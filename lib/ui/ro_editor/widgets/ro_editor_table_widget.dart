@@ -16,7 +16,7 @@ class RoEditorTable extends StatelessWidget {
   /// in-between if editorViewModel.editMode == [EditMode.add].
   List<Widget> _buildEventBlockWidgets(List<EventBlock> blocks) {
     var widgets = <Widget>[
-      if (editorViewModel.editMode == EditMode.add)
+      if (editorViewModel.editMode == .add)
         _InsertEventBlockDivider(
           editorViewModel: editorViewModel,
           insertAtIndex: 0,

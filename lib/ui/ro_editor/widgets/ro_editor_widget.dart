@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 /// The RoEditor is a widget that allows the user to
 /// create and edit the running-order of an event.
 ///
-///
 /// The RoEditor widget is made out of two parts: the [RoEditorToolBar] widget,
 /// which controls several main actions of the editor, and the [RoEditorTable]
 /// widget, where most of the details of the running-order can be edited.
@@ -29,7 +28,6 @@ class _RoEditorState extends State<RoEditor> {
 
   @override
   void dispose() {
-    editorViewModel.dispose();
     super.dispose();
   }
 
@@ -38,13 +36,11 @@ class _RoEditorState extends State<RoEditor> {
     var desktopView = MediaQuery.sizeOf(context).width > mobilePixelThreshold;
 
     if (desktopView) {
-      return SingleChildScrollView(
-        child: Column(
-          children: [
-            RoEditorToolBar(editorViewModel: editorViewModel),
-            RoEditorTable(editorViewModel: editorViewModel),
-          ],
-        ),
+      return Column(
+        children: [
+          RoEditorToolBar(editorViewModel: editorViewModel),
+          Expanded(child: RoEditorTable(editorViewModel: editorViewModel)),
+        ],
       );
     }
 
@@ -54,9 +50,7 @@ class _RoEditorState extends State<RoEditor> {
           child: Stack(
             alignment: .topCenter,
             children: [
-              SingleChildScrollView(
-                child: RoEditorTable(editorViewModel: editorViewModel),
-              ),
+              RoEditorTable(editorViewModel: editorViewModel),
               Positioned(
                 bottom: 25,
                 child: RoEditorToolBar(editorViewModel: editorViewModel),

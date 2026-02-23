@@ -1,4 +1,3 @@
-import 'package:event_planner_frontend/data/models/event_block.dart';
 import 'package:event_planner_frontend/ui/ro_editor/view_models/ro_editor_view_model.dart';
 import 'package:flutter/material.dart';
 
@@ -11,52 +10,60 @@ class RoEditorTable extends StatelessWidget {
 
   final RoEditorViewModel editorViewModel;
 
-  /// Given a list of event blocks, it'll attempt to construct a list of
-  /// [_EventBlockContainer] widgets with [_InsertEventBlockDivider] widgets
-  /// in-between if editorViewModel.editMode == [EditMode.add].
-  List<Widget> _buildEventBlockWidgets(List<EventBlock> blocks) {
-    var widgets = <Widget>[
-      if (editorViewModel.editMode == .add)
-        _InsertEventBlockDivider(
-          editorViewModel: editorViewModel,
-          insertAtIndex: 0,
-        ),
-    ];
-    for (var i = 0; i < blocks.length; i++) {
-      widgets.add(
-        FractionallySizedBox(
-          widthFactor: 100,
-          child: _EventBlockContainer(
-            editorViewModel: editorViewModel,
-            blockIndex: i,
-          ),
-        ),
-      );
-      if (editorViewModel.editMode == .add) {
-        widgets.add(
-          _InsertEventBlockDivider(
-            editorViewModel: editorViewModel,
-            insertAtIndex: i + 1,
-          ),
-        );
-      }
-    }
-    return widgets;
-  }
-
   @override
   Widget build(BuildContext context) {
-    return ListenableBuilder(
-      listenable: editorViewModel,
-      builder: (context, child) {
-        return Column(
-          children: [
-            _TableHeader(),
-            ..._buildEventBlockWidgets(editorViewModel.eventBlocks),
-            SizedBox(height: 100),
-          ],
-        );
-      },
+    return Column(
+      children: [
+        _TableHeader(),
+        Expanded(
+          child: ListenableBuilder(
+            listenable: Listenable.merge([editorViewModel.eventBlocks, editorViewModel.editMode]),
+            builder: (context, child) {
+              var itemCountLength = editorViewModel.editMode.value == .base
+                  ? editorViewModel.eventBlocks.value.length
+                  : (editorViewModel.eventBlocks.value.length * 2) + 2;
+              return ListView.builder(
+                itemCount: itemCountLength,
+                itemBuilder: (context, index) {
+                  switch (editorViewModel.editMode.value) {
+                    case .base:
+                      return FractionallySizedBox(
+                        widthFactor: 100,
+                        child: _EventBlockContainer(
+                          editorViewModel: editorViewModel,
+                          blockIndex: index,
+                        ),
+                      );
+                    case .add:
+                      if (index == itemCountLength - 1) {
+                        return SizedBox(height: 100);
+                      }
+                      if (index % 2 == 0) {
+                        return _InsertEventBlockDivider(
+                          editorViewModel: editorViewModel,
+                          insertAtIndex: index ~/ 2,
+                        );
+                      } else {
+                        var block = editorViewModel.eventBlocks.value[index ~/ 2].value;
+                        return _EventBlockContainer(
+                          key: Key('event-block-${block.id}'),
+                          editorViewModel: editorViewModel,
+                          blockIndex: index ~/ 2,
+                        );
+                      }
+                    case .delete:
+                      return null;
+                    case .paste:
+                      return null;
+                    case .sort:
+                      return null;
+                  }
+                },
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 }
@@ -102,6 +109,7 @@ class _InsertEventBlockDivider extends StatelessWidget {
 /// input fields for the user.
 class _EventBlockContainer extends StatefulWidget {
   const _EventBlockContainer({
+    super.key,
     required this.editorViewModel,
     required this.blockIndex,
   });
@@ -119,7 +127,7 @@ class _EventBlockContainerState extends State<_EventBlockContainer> {
   @override
   void initState() {
     blockTitleController = TextEditingController(
-      text: widget.editorViewModel.eventBlocks[widget.blockIndex].title,
+      text: widget.editorViewModel.eventBlocks.value[widget.blockIndex].value.title,
     );
     super.initState();
   }
@@ -132,7 +140,7 @@ class _EventBlockContainerState extends State<_EventBlockContainer> {
 
   @override
   Widget build(BuildContext context) {
-    var block = widget.editorViewModel.eventBlocks[widget.blockIndex];
+    var blockNotifier = widget.editorViewModel.eventBlocks.value[widget.blockIndex];
 
     return Container(
       decoration: BoxDecoration(
@@ -166,44 +174,52 @@ class _EventBlockContainerState extends State<_EventBlockContainer> {
               width: 120,
               child: Tooltip(
                 message: 'Edit start time',
-                child: OutlinedButton(
-                  style: ButtonStyle(
-                    shape: WidgetStatePropertyAll(
-                      ContinuousRectangleBorder(
-                        borderRadius: BorderRadiusGeometry.all(
-                          Radius.circular(10),
+                child: ValueListenableBuilder(
+                  valueListenable: blockNotifier,
+                  builder: (context, block, child) => OutlinedButton(
+                    style: ButtonStyle(
+                      shape: WidgetStatePropertyAll(
+                        ContinuousRectangleBorder(
+                          borderRadius: BorderRadiusGeometry.all(
+                            Radius.circular(10),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  onPressed: () =>
-                      showTimePicker(
-                        context: context,
-                        initialTime: TimeOfDay(
-                          hour: block.startTime.hour,
-                          minute: block.startTime.minute,
-                        ),
-                      ).then((value) {
-                        if (value != null) {
-                          widget.editorViewModel.setEventBlockData(
-                            widget.blockIndex,
-                            time: value,
-                          );
-                        }
-                      }),
-                  child: Text(
-                    widget.editorViewModel.convertBlockTimeToTimestamp(
-                      block.startTime,
+                    onPressed: () =>
+                        showTimePicker(
+                          context: context,
+                          initialTime: TimeOfDay(
+                            hour: block.startTime.hour,
+                            minute: block.startTime.minute,
+                          ),
+                        ).then((value) {
+                          if (value != null) {
+                            widget.editorViewModel.setEventBlockData(
+                              widget.blockIndex,
+                              time: value,
+                            );
+                          }
+                        }),
+                    child: Text(
+                      widget.editorViewModel.convertBlockTimeToTimestamp(
+                        block.startTime,
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
           if (widget.blockIndex != 0)
-            Text(
-              widget.editorViewModel.convertBlockTimeToTimestamp(
-                block.startTime,
-              ),
+            ValueListenableBuilder(
+              valueListenable: blockNotifier,
+              builder: (context, block, child) {
+                return Text(
+                  widget.editorViewModel.convertBlockTimeToTimestamp(
+                    block.startTime,
+                  ),
+                );
+              }
             ),
         ],
       ),

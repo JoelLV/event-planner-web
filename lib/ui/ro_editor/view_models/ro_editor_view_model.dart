@@ -16,62 +16,72 @@ enum ViewType { view, edit }
 /// [base] is for presenting the default view when the [ViewType] is [ViewType.edit].
 enum EditMode { add, delete, sort, paste, base }
 
+typedef EventBlockListNotifier = ValueNotifier<List<ValueNotifier<EventBlock>>>;
+
 /// View model consumed by the RoEditor [RoEditorToolbar] and
 /// [RoEditorTable].
-class RoEditorViewModel extends ChangeNotifier {
+class RoEditorViewModel {
   RoEditorViewModel();
 
-  EditMode get editMode => _editMode;
-  EditMode _editMode = .base;
+  ValueNotifier<EditMode> get editMode => _editMode;
+  final ValueNotifier<EditMode> _editMode = ValueNotifier(.base);
 
-  List<EventBlock> get eventBlocks => _eventBlocks;
-  final List<EventBlock> _eventBlocks = [];
+  EventBlockListNotifier get eventBlocks => _eventBlocks;
+  final EventBlockListNotifier _eventBlocks = ValueNotifier([]);
 
   /// Changes the RoEditor edit mode to the given [newMode].
   /// Does not do anything if the mode given is the current mode.
   void changeEditMode(EditMode newMode) {
-    if (_editMode == newMode) {
+    if (_editMode.value == newMode) {
       return;
     }
-    _editMode = newMode;
-    notifyListeners();
+    _editMode.value = newMode;
   }
 
   /// Adds a new block to the specified index.
   void insertEventBlockAt(int index) {
     DateTime startTime = DateTime.now();
 
-    if (index == 0 && _eventBlocks.isNotEmpty) {
-      startTime = _eventBlocks[0].startTime;
+    if (index == 0 && _eventBlocks.value.isNotEmpty) {
+      startTime = _eventBlocks.value[0].value.startTime;
     }
-    var block = EventBlock(startTime: startTime, title: '');
-    _eventBlocks.insert(index, block);
-    notifyListeners();
+
+    var block = EventBlock(
+      id: _eventBlocks.value.length,
+      startTime: startTime,
+      title: '',
+      eventSections: [],
+    );
+
+    var newList = List<ValueNotifier<EventBlock>>.from(_eventBlocks.value);
+    newList.insert(index, ValueNotifier(block));
+
+    _eventBlocks.value = newList;
   }
 
   /// Modifies an existing event block specified by its index
   /// in the [eventBlocks] list with the given time.
   void setEventBlockData(int index, {TimeOfDay? time, String? blockName}) {
-    final block = _eventBlocks[index];
-    if (time != null) {
-      if (index != 0) {
-        throw ArgumentError.value(
-          index,
-          'index',
-          'value `index` does not equal to 0',
-        );
-      }
-      block.startTime = DateTime.now().copyWith(
-        hour: time.hour,
-        minute: time.minute,
+    if (time != null && index != 0) {
+      throw ArgumentError.value(
+        index,
+        'index',
+        'value `index` does not equal to 0',
       );
     }
+
+    var blockNotifier = _eventBlocks.value[index];
     if (blockName != null) {
-      block.title = blockName;
+      blockNotifier.value = blockNotifier.value.copyWith(title: blockName);
     }
 
-    if (time != null || blockName != null) {
-      notifyListeners();
+    if (time != null) {
+      blockNotifier.value = blockNotifier.value.copyWith(
+        startTime: DateTime.now().copyWith(
+          hour: time.hour,
+          minute: time.minute,
+        ),
+      );
     }
   }
 
@@ -85,6 +95,6 @@ class RoEditorViewModel extends ChangeNotifier {
   String convertBlockTimeToTimestamp(DateTime time) {
     var hour = time.hour;
     var minute = time.minute;
-    return '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')} ${hour < 11 ? 'am' : 'pm'}';
+    return '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')} ${hour < 11 ? 'a.m.' : 'p.m.'}';
   }
 }

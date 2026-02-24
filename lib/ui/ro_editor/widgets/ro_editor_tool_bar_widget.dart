@@ -31,7 +31,15 @@ class RoEditorToolBar extends StatelessWidget {
   // ];
 
   /// Generates a list of Icon buttons for the toolbar.
-  List<Widget> _getToolbarButtons(BuildContext context) {
+  List<Widget> _getToolbarButtons(EditMode mode) {
+    if (mode != .base) {
+      return [
+        Padding(
+          padding: const EdgeInsets.only(left: 10, right: 10),
+          child: _DoneButton(editorViewModel: editorViewModel),
+        ),
+      ];
+    }
     return [
       Padding(
         padding: const EdgeInsets.only(left: 10, right: 10),
@@ -51,9 +59,14 @@ class RoEditorToolBar extends StatelessWidget {
             : null,
         child: Padding(
           padding: const EdgeInsets.only(top: 10, bottom: 10),
-          child: Row(
-            mainAxisAlignment: .center,
-            children: _getToolbarButtons(context),
+          child: ValueListenableBuilder(
+            valueListenable: editorViewModel.editMode,
+            builder: (context, value, child) {
+              return Row(
+                mainAxisAlignment: .center,
+                children: _getToolbarButtons(value),
+              );
+            }
           ),
         ),
       ),
@@ -63,34 +76,36 @@ class RoEditorToolBar extends StatelessWidget {
 
 /// Implementation of the add button for adding
 /// event blocks/sections to the RoEditor.
-class _AddButton extends StatefulWidget {
+class _AddButton extends StatelessWidget {
   const _AddButton({required this.editorViewModel});
 
   final RoEditorViewModel editorViewModel;
 
   @override
-  State<_AddButton> createState() => _AddButtonState();
+  Widget build(BuildContext context) {
+    return IconButton(
+      tooltip: 'Add block/section',
+      onPressed: () {
+        editorViewModel.changeEditMode(.add);
+      },
+      icon: Icon(Icons.add),
+    );
+  }
 }
 
-class _AddButtonState extends State<_AddButton> {
-  final FocusNode _addButtonFocusNode = FocusNode(debugLabel: 'Add Button');
+class _DoneButton extends StatelessWidget {
+  const _DoneButton({required this.editorViewModel});
 
-  /// Cleanup focus node for child button.
-  @override
-  void dispose() {
-    _addButtonFocusNode.dispose();
-    super.dispose();
-  }
+  final RoEditorViewModel editorViewModel;
 
   @override
   Widget build(BuildContext context) {
     return IconButton(
-      tooltip: 'Add block/section',
-      focusNode: _addButtonFocusNode,
+      tooltip: 'Confirm changes',
       onPressed: () {
-        widget.editorViewModel.changeEditMode(.add);
+        editorViewModel.changeEditMode(.base);
       },
-      icon: Icon(Icons.add),
+      icon: Icon(Icons.check_circle_outline),
     );
   }
 }

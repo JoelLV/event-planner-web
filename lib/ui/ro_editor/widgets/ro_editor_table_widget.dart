@@ -17,7 +17,10 @@ class RoEditorTable extends StatelessWidget {
         _TableHeader(),
         Expanded(
           child: ListenableBuilder(
-            listenable: Listenable.merge([editorViewModel.eventBlocks, editorViewModel.editMode]),
+            listenable: Listenable.merge([
+              editorViewModel.eventBlocks,
+              editorViewModel.editMode,
+            ]),
             builder: (context, child) {
               var itemCountLength = editorViewModel.editMode.value == .base
                   ? editorViewModel.eventBlocks.value.length
@@ -44,7 +47,8 @@ class RoEditorTable extends StatelessWidget {
                           insertAtIndex: index ~/ 2,
                         );
                       } else {
-                        var block = editorViewModel.eventBlocks.value[index ~/ 2].value;
+                        var block =
+                            editorViewModel.eventBlocks.value[index ~/ 2].value;
                         return _EventBlockContainer(
                           key: Key('event-block-${block.id}'),
                           editorViewModel: editorViewModel,
@@ -127,7 +131,12 @@ class _EventBlockContainerState extends State<_EventBlockContainer> {
   @override
   void initState() {
     blockTitleController = TextEditingController(
-      text: widget.editorViewModel.eventBlocks.value[widget.blockIndex].value.title,
+      text: widget
+          .editorViewModel
+          .eventBlocks
+          .value[widget.blockIndex]
+          .value
+          .title,
     );
     super.initState();
   }
@@ -140,7 +149,8 @@ class _EventBlockContainerState extends State<_EventBlockContainer> {
 
   @override
   Widget build(BuildContext context) {
-    var blockNotifier = widget.editorViewModel.eventBlocks.value[widget.blockIndex];
+    var blockNotifier =
+        widget.editorViewModel.eventBlocks.value[widget.blockIndex];
 
     return Container(
       decoration: BoxDecoration(
@@ -153,7 +163,9 @@ class _EventBlockContainerState extends State<_EventBlockContainer> {
       child: Column(
         crossAxisAlignment: .center,
         children: [
-          Text('Block ${widget.blockIndex + 1}'),
+          Text(
+            'Block ${widget.editorViewModel.intToRomanNumber(widget.blockIndex + 1)}',
+          ),
           SizedBox(
             width: 300,
             child: TextField(
@@ -193,6 +205,7 @@ class _EventBlockContainerState extends State<_EventBlockContainer> {
                             hour: block.startTime.hour,
                             minute: block.startTime.minute,
                           ),
+                          initialEntryMode: TimePickerEntryMode.inputOnly,
                         ).then((value) {
                           if (value != null) {
                             widget.editorViewModel.setEventBlockData(
@@ -219,7 +232,7 @@ class _EventBlockContainerState extends State<_EventBlockContainer> {
                     block.startTime,
                   ),
                 );
-              }
+              },
             ),
         ],
       ),

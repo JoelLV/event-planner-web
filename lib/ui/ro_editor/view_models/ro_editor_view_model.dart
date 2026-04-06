@@ -13,7 +13,8 @@ enum ViewType { view, edit }
 /// [delete] is for deleting event blocks and sections.
 /// [sort] is for sorting event blocks and sections.
 /// [paste] is for pasting event blocks or sections in the clipboard.
-/// [base] is for presenting the default view when the [ViewType] is [ViewType.edit].
+/// [base] is for presenting the default view when the [ViewType] is
+/// [ViewType.edit].
 enum EditMode { add, delete, sort, paste, base }
 
 typedef EventBlockListNotifier = ValueNotifier<List<ValueNotifier<EventBlock>>>;
@@ -85,9 +86,41 @@ class RoEditorViewModel {
     }
   }
 
-  /// Converts a given number to its equivalent in roman numerals.
+  /// Converts a given number to its equivalent in roman numerals. This function
+  /// is only limited to the standard form, which means that numbers greater
+  /// than 3999 are not going to be accepted. Throws
   String intToRomanNumber(int n) {
-    return '';
+    if (n > 3999 || n <= 0) {
+      throw ArgumentError.value(
+        n,
+        'Maximum value allowed for this function is 3999 and minimum value is 1',
+      );
+    }
+    const romanMap = [
+      (1000, 'M'),
+      (900, 'CM'),
+      (500, 'D'),
+      (400, 'CD'),
+      (100, 'C'),
+      (90, 'XC'),
+      (50, 'L'),
+      (40, 'XL'),
+      (10, 'X'),
+      (9, 'IX'),
+      (5, 'V'),
+      (4, 'IV'),
+      (1, 'I'),
+    ];
+
+    final buffer = StringBuffer();
+    for (final valueThreshold in romanMap) {
+      while (n >= valueThreshold.$1) {
+        buffer.write(valueThreshold.$2);
+        n -= valueThreshold.$1;
+      }
+    }
+
+    return buffer.toString();
   }
 
   /// Converts a given [DateTime] object to a string
@@ -95,6 +128,7 @@ class RoEditorViewModel {
   String convertBlockTimeToTimestamp(DateTime time) {
     var hour = time.hour;
     var minute = time.minute;
-    return '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')} ${hour < 11 ? 'a.m.' : 'p.m.'}';
+    return '${hour.toString().padLeft(2, '0')}:'
+        '${minute.toString().padLeft(2, '0')} ${hour < 11 ? 'a.m.' : 'p.m.'}';
   }
 }

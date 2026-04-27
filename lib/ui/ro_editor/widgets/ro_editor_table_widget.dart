@@ -10,6 +10,86 @@ class RoEditorTable extends StatelessWidget {
 
   final RoEditorViewModel editorViewModel;
 
+  /// Calculates the total number of widgets that will need to be rendered
+  /// on the RoEditor table.
+  int _calculateListLength() {
+    var total = 0;
+    for (var blockNotifier in editorViewModel.eventBlocks.value) {
+      total += 1 + blockNotifier.value.eventSections.length;
+    }
+    // Add one more for the SizedBox spacer at the end.
+    return total + 1;
+  }
+
+  /// Calculates the indexes of the block widgets relative to the entire table
+  /// and maps these indexes to the indexes of the block models stored
+  /// in the view model. The key is the widget index of the block relative
+  /// to the entire widget ListView. The value is the block index relative
+  /// to the event blocks list stored in the view model.
+  Map<int, int> _calculateBlockIndexes() {
+    var blockIndexes = <int, int>{};
+    var currFlatIndex = 0;
+    var blockOrder = 0;
+    for (var i = 0; i < editorViewModel.eventBlocks.value.length; i++) {
+      blockIndexes[currFlatIndex] = blockOrder;
+      var block = editorViewModel.eventBlocks.value[i].value;
+      for (var ii = 0; ii < block.eventSections.length; ii++) {
+        currFlatIndex++;
+      }
+      currFlatIndex++;
+      blockOrder++;
+    }
+    return blockIndexes;
+  }
+
+  /// Generates the appropriate widget for the main ListView according to
+  /// several parameters given.
+  Widget _getListViewRowWidgetAt(
+    int index,
+    Map<int, int> blockIndexes,
+    bool last,
+  ) {
+    if (last) {
+      var spacer = SizedBox(height: 100);
+      return switch (editorViewModel.editMode.value) {
+        .add => Column(
+          children: [
+            _InsertEventBlockDivider(
+              insertAtIndex: index,
+              editorViewModel: editorViewModel,
+            ),
+            spacer,
+          ],
+        ),
+        _ => spacer,
+      };
+    } else if (blockIndexes.containsKey(index)) {
+      var blockModel = editorViewModel.eventBlocks.value[blockIndexes[index]!];
+      var blockContainer = FractionallySizedBox(
+        widthFactor: 100,
+        child: _EventBlockContainer(
+          key: Key('event-block-${blockModel.value.id}'),
+          editorViewModel: editorViewModel,
+          blockIndex: index,
+        ),
+      );
+      return switch (editorViewModel.editMode.value) {
+        .add => Column(
+          children: [
+            _InsertEventBlockDivider(
+              insertAtIndex: blockIndexes[index]!,
+              editorViewModel: editorViewModel,
+            ),
+            blockContainer,
+          ],
+        ),
+        _ => blockContainer,
+      };
+    }
+    // Return event section container here.
+    return Placeholder();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -22,46 +102,16 @@ class RoEditorTable extends StatelessWidget {
               editorViewModel.editMode,
             ]),
             builder: (context, child) {
-              var itemCountLength = editorViewModel.editMode.value == .base
-                  ? editorViewModel.eventBlocks.value.length
-                  : (editorViewModel.eventBlocks.value.length * 2) + 2;
+              var itemCountLength = _calculateListLength();
+              var blockIndexes = _calculateBlockIndexes();
               return ListView.builder(
                 itemCount: itemCountLength,
                 itemBuilder: (context, index) {
-                  switch (editorViewModel.editMode.value) {
-                    case .base:
-                      return FractionallySizedBox(
-                        widthFactor: 100,
-                        child: _EventBlockContainer(
-                          editorViewModel: editorViewModel,
-                          blockIndex: index,
-                        ),
-                      );
-                    case .add:
-                      if (index == itemCountLength - 1) {
-                        return SizedBox(height: 100);
-                      }
-                      if (index % 2 == 0) {
-                        return _InsertEventBlockDivider(
-                          editorViewModel: editorViewModel,
-                          insertAtIndex: index ~/ 2,
-                        );
-                      } else {
-                        var block =
-                            editorViewModel.eventBlocks.value[index ~/ 2].value;
-                        return _EventBlockContainer(
-                          key: Key('event-block-${block.id}'),
-                          editorViewModel: editorViewModel,
-                          blockIndex: index ~/ 2,
-                        );
-                      }
-                    case .delete:
-                      return null;
-                    case .paste:
-                      return null;
-                    case .sort:
-                      return null;
-                  }
+                  return _getListViewRowWidgetAt(
+                    index,
+                    blockIndexes,
+                    index == itemCountLength - 1,
+                  );
                 },
               );
             },
@@ -155,7 +205,6 @@ class _EventBlockContainerState extends State<_EventBlockContainer> {
     return Container(
       decoration: BoxDecoration(
         border: Border(
-          top: BorderSide(color: _getTableBorderColor(context)),
           bottom: BorderSide(color: _getTableBorderColor(context)),
         ),
       ),

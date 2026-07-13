@@ -1,3 +1,4 @@
+import 'package:event_planner_frontend/data/models/event_section.dart';
 import 'package:event_planner_frontend/ui/ro_editor/view_models/ro_editor_view_model.dart';
 import 'package:flutter/material.dart';
 
@@ -27,7 +28,7 @@ class RoEditorTable extends StatelessWidget {
   /// to the entire widget ListView. The value is the block index relative
   /// to the event blocks list stored in the view model.
   Map<int, int> _calculateBlockIndexes() {
-    var blockIndexes = <int, int>{};
+    final blockIndexes = <int, int>{};
     var currFlatIndex = 0;
     var blockOrder = 0;
     for (var i = 0; i < editorViewModel.eventBlocks.value.length; i++) {
@@ -42,6 +43,24 @@ class RoEditorTable extends StatelessWidget {
     return blockIndexes;
   }
 
+  EventSection _getEventSectionFromListViewIndex(int listViewIndex) {
+    var currListViewIndex = 0;
+    for (var i = 0; i < editorViewModel.eventBlocks.value.length; i++) {
+      currListViewIndex++;
+      var block = editorViewModel.eventBlocks.value[i].value;
+      for (var ii = 0; i < block.eventSections.length; ii++) {
+        if (currListViewIndex == listViewIndex) {
+          return block.eventSections[ii];
+        }
+        currListViewIndex++;
+      }
+    }
+    throw ArgumentError(
+      'Invalid listViewIndex given: $listViewIndex',
+      'listViewIndex',
+    );
+  }
+
   /// Generates the appropriate widget for the main ListView according to
   /// several parameters given.
   Widget _getListViewRowWidgetAt(
@@ -50,7 +69,7 @@ class RoEditorTable extends StatelessWidget {
     bool last,
   ) {
     if (last) {
-      var spacer = SizedBox(height: 100);
+      const spacer = SizedBox(height: 100);
       return switch (editorViewModel.editMode.value) {
         .add => Column(
           children: [
@@ -64,11 +83,12 @@ class RoEditorTable extends StatelessWidget {
         _ => spacer,
       };
     } else if (blockIndexes.containsKey(index)) {
-      var blockModel = editorViewModel.eventBlocks.value[blockIndexes[index]!];
-      var blockContainer = FractionallySizedBox(
+      final blockModel =
+          editorViewModel.eventBlocks.value[blockIndexes[index]!].value;
+      final blockContainer = FractionallySizedBox(
         widthFactor: 100,
         child: _EventBlockContainer(
-          key: Key('event-block-${blockModel.value.id}'),
+          key: Key('event-block-${blockModel.id}'),
           editorViewModel: editorViewModel,
           blockIndex: index,
         ),
@@ -85,9 +105,15 @@ class RoEditorTable extends StatelessWidget {
         ),
         _ => blockContainer,
       };
+    } else {
+      return switch (editorViewModel.editMode.value) {
+        _ => _EventSectionContainer(
+          key: Key(
+            'event-section-${_getEventSectionFromListViewIndex(index).id}',
+          ),
+        ),
+      };
     }
-    // Return event section container here.
-    return Placeholder();
   }
 
   @override
@@ -102,8 +128,8 @@ class RoEditorTable extends StatelessWidget {
               editorViewModel.editMode,
             ]),
             builder: (context, child) {
-              var itemCountLength = _calculateListLength();
-              var blockIndexes = _calculateBlockIndexes();
+              final itemCountLength = _calculateListLength();
+              final blockIndexes = _calculateBlockIndexes();
               return ListView.builder(
                 itemCount: itemCountLength,
                 itemBuilder: (context, index) {
@@ -286,6 +312,20 @@ class _EventBlockContainerState extends State<_EventBlockContainer> {
         ],
       ),
     );
+  }
+}
+
+class _EventSectionContainer extends StatefulWidget {
+  const _EventSectionContainer({super.key});
+
+  @override
+  State<_EventSectionContainer> createState() => _EventSectionContainerState();
+}
+
+class _EventSectionContainerState extends State<_EventSectionContainer> {
+  @override
+  Widget build(BuildContext context) {
+    return const Placeholder();
   }
 }
 

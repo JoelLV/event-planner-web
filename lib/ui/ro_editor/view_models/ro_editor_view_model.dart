@@ -41,13 +41,13 @@ class RoEditorViewModel {
 
   /// Adds a new block to the specified index.
   void insertEventBlockAt(int index) {
-    DateTime startTime = DateTime.now();
+    var startTime = DateTime.now();
 
     if (index == 0 && _eventBlocks.value.isNotEmpty) {
       startTime = _eventBlocks.value[0].value.startTime;
     }
 
-    var block = EventBlock(
+    final block = EventBlock(
       id: _eventBlocks.value.length,
       startTime: startTime,
       title: '',
@@ -71,7 +71,7 @@ class RoEditorViewModel {
       );
     }
 
-    var blockNotifier = _eventBlocks.value[index];
+    final blockNotifier = _eventBlocks.value[index];
     if (blockName != null) {
       blockNotifier.value = blockNotifier.value.copyWith(title: blockName);
     }
@@ -126,9 +126,9 @@ class RoEditorViewModel {
   /// Converts a given [DateTime] object to a string
   /// representation in the format HH:mm am|pm.
   String convertBlockTimeToTimestamp(DateTime time) {
-    var hour = time.hour;
-    var minute = time.minute;
+    final hour = time.hour <= 12 ? time.hour : time.hour - 12;
+    final minute = time.minute;
     return '${hour.toString().padLeft(2, '0')}:'
-        '${minute.toString().padLeft(2, '0')} ${hour < 11 ? 'a.m.' : 'p.m.'}';
+        '${minute.toString().padLeft(2, '0')} ${time.hour < 11 ? 'a.m.' : 'p.m.'}';
   }
 }

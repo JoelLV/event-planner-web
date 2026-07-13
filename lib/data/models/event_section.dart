@@ -6,7 +6,9 @@ part 'event_section.g.dart';
 
 @freezed
 abstract class EventSection with _$EventSection {
-  const factory EventSection() = _EventSection;
+  const factory EventSection({
+    required int id,
+}) = _EventSection;
 
   factory EventSection.fromJson(Map<String, Object?> json) => _$EventSectionFromJson(json);
 }

@@ -7,7 +7,7 @@ part of 'event_section.dart';
 // **************************************************************************
 
 _EventSection _$EventSectionFromJson(Map<String, dynamic> json) =>
-    _EventSection();
+    _EventSection(id: (json['id'] as num).toInt());
 
 Map<String, dynamic> _$EventSectionToJson(_EventSection instance) =>
-    <String, dynamic>{};
+    <String, dynamic>{'id': instance.id};

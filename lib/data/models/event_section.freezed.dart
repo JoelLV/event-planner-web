@@ -15,7 +15,12 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$EventSection implements DiagnosticableTreeMixin {
 
-
+ int get id;
+/// Create a copy of EventSection
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$EventSectionCopyWith<EventSection> get copyWith => _$EventSectionCopyWithImpl<EventSection>(this as EventSection, _$identity);
 
   /// Serializes this EventSection to a JSON map.
   Map<String, dynamic> toJson();
@@ -24,29 +29,55 @@ mixin _$EventSection implements DiagnosticableTreeMixin {
 void debugFillProperties(DiagnosticPropertiesBuilder properties) {
   properties
     ..add(DiagnosticsProperty('type', 'EventSection'))
-    ;
+    ..add(DiagnosticsProperty('id', id));
 }
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is EventSection);
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is EventSection&&(identical(other.id, id) || other.id == id));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => runtimeType.hashCode;
+int get hashCode => Object.hash(runtimeType,id);
 
 @override
 String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
-  return 'EventSection()';
+  return 'EventSection(id: $id)';
 }
 
 
 }
 
 /// @nodoc
-class $EventSectionCopyWith<$Res>  {
-$EventSectionCopyWith(EventSection _, $Res Function(EventSection) __);
+abstract mixin class $EventSectionCopyWith<$Res>  {
+  factory $EventSectionCopyWith(EventSection value, $Res Function(EventSection) _then) = _$EventSectionCopyWithImpl;
+@useResult
+$Res call({
+ int id
+});
+
+
+
+
+}
+/// @nodoc
+class _$EventSectionCopyWithImpl<$Res>
+    implements $EventSectionCopyWith<$Res> {
+  _$EventSectionCopyWithImpl(this._self, this._then);
+
+  final EventSection _self;
+  final $Res Function(EventSection) _then;
+
+/// Create a copy of EventSection
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,}) {
+  return _then(_self.copyWith(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
 }
 
 
@@ -128,10 +159,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function()?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _EventSection() when $default != null:
-return $default();case _:
+return $default(_that.id);case _:
   return orElse();
 
 }
@@ -149,10 +180,10 @@ return $default();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function()  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id)  $default,) {final _that = this;
 switch (_that) {
 case _EventSection():
-return $default();case _:
+return $default(_that.id);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -169,10 +200,10 @@ return $default();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function()?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id)?  $default,) {final _that = this;
 switch (_that) {
 case _EventSection() when $default != null:
-return $default();case _:
+return $default(_that.id);case _:
   return null;
 
 }
@@ -184,11 +215,16 @@ return $default();case _:
 @JsonSerializable()
 
 class _EventSection with DiagnosticableTreeMixin implements EventSection {
-  const _EventSection();
+  const _EventSection({required this.id});
   factory _EventSection.fromJson(Map<String, dynamic> json) => _$EventSectionFromJson(json);
 
+@override final  int id;
 
-
+/// Create a copy of EventSection
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$EventSectionCopyWith<_EventSection> get copyWith => __$EventSectionCopyWithImpl<_EventSection>(this, _$identity);
 
 @override
 Map<String, dynamic> toJson() {
@@ -198,27 +234,56 @@ Map<String, dynamic> toJson() {
 void debugFillProperties(DiagnosticPropertiesBuilder properties) {
   properties
     ..add(DiagnosticsProperty('type', 'EventSection'))
-    ;
+    ..add(DiagnosticsProperty('id', id));
 }
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _EventSection);
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _EventSection&&(identical(other.id, id) || other.id == id));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => runtimeType.hashCode;
+int get hashCode => Object.hash(runtimeType,id);
 
 @override
 String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
-  return 'EventSection()';
+  return 'EventSection(id: $id)';
 }
 
 
 }
 
+/// @nodoc
+abstract mixin class _$EventSectionCopyWith<$Res> implements $EventSectionCopyWith<$Res> {
+  factory _$EventSectionCopyWith(_EventSection value, $Res Function(_EventSection) _then) = __$EventSectionCopyWithImpl;
+@override @useResult
+$Res call({
+ int id
+});
 
 
+
+
+}
+/// @nodoc
+class __$EventSectionCopyWithImpl<$Res>
+    implements _$EventSectionCopyWith<$Res> {
+  __$EventSectionCopyWithImpl(this._self, this._then);
+
+  final _EventSection _self;
+  final $Res Function(_EventSection) _then;
+
+/// Create a copy of EventSection
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,}) {
+  return _then(_EventSection(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+
+}
 
 // dart format on
